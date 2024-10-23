@@ -7,3 +7,9 @@ spring:
       auto-index-creation: true
 server:
   port: 8081
+
+springdoc:
+  openapi:
+    title: 'User Service API'
+    description: 'Component responsible for user management'
+    version: '1.0.0'
