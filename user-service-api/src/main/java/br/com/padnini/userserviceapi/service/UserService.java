@@ -5,6 +5,7 @@ import br.com.padnini.userserviceapi.mapper.UserMapper;
 import br.com.padnini.userserviceapi.repository.UserRepository;
 import exceoptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
+import models.requests.CreateUserRequest;
 import models.responses.UserResponse;
 import org.springframework.stereotype.Service;
 
@@ -20,4 +21,7 @@ public class UserService {
         return userMapper.fromEntity(userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Object not found "+ id)));
     }
 
+    public void save(CreateUserRequest request) {
+        userRepository.save(userMapper.fromRequest(request));
+    }
 }
