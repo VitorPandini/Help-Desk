@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import models.requests.CreateUserRequest;
 import models.responses.UserResponse;
 import org.springframework.http.MediaType;
@@ -44,5 +45,5 @@ public interface UserController {
             )
     })
     @PostMapping
-    ResponseEntity<Void> saveUser(@RequestBody final  CreateUserRequest request);
+    ResponseEntity<Void> saveUser( @Valid @RequestBody final  CreateUserRequest request);
 }
