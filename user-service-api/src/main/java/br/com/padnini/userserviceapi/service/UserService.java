@@ -25,12 +25,13 @@ public class UserService {
     }
 
     public void save(final CreateUserRequest request) {
+        verifyIfEmailAlreadyExists(request.email(),null);
         userRepository.save(userMapper.fromRequest(request));
     }
 
     private void verifyIfEmailAlreadyExists(final String email,final String id) {
         userRepository.findByEmail(email).filter(user -> !user.getId().equals(id)).ifPresent(user ->{
-            throw new DataIntegrityViolationException("Email already exists");
+            throw new DataIntegrityViolationException("Email ["+ email +"] already exists");
         });
     }
 }
