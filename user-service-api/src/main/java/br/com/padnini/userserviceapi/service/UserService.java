@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.parameters.RequestBody;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import models.requests.CreateUserRequest;
+import models.requests.UpdateUserRequest;
 import models.responses.UserResponse;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
@@ -23,7 +24,7 @@ public class UserService {
     private final UserMapper userMapper;
 
     public UserResponse findById (final String id){
-        return userMapper.fromEntity(userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Object not found "+ id)));
+        return userMapper.fromEntity(find(id));
     }
 
     public void save(final CreateUserRequest request) {
@@ -39,5 +40,15 @@ public class UserService {
 
     public List<UserResponse> findAll() {
         return userRepository.findAll().stream().map(userMapper::fromEntity).toList();
+    }
+
+    public UserResponse update(final String id, final UpdateUserRequest request) {
+        User entity = find(id);
+        verifyIfEmailAlreadyExists(request.email(),id);
+        return userMapper.fromEntity(userRepository.save(userMapper.update(request,entity)));
+    }
+
+    private User find(final String id) {
+        return userRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Object not found "+ id));
     }
 }
