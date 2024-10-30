@@ -11,6 +11,7 @@ import models.requests.CreateUserRequest;
 import models.requests.UpdateUserRequest;
 import models.responses.UserResponse;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,13 +24,15 @@ public class UserService {
 
     private final UserMapper userMapper;
 
+    private final PasswordEncoder encoder;
+
     public UserResponse findById (final String id){
         return userMapper.fromEntity(find(id));
     }
 
     public void save(final CreateUserRequest request) {
         verifyIfEmailAlreadyExists(request.email(),null);
-        userRepository.save(userMapper.fromRequest(request));
+        userRepository.save(userMapper.fromRequest(request).withPassword(encoder.encode(request.password())));
     }
 
     private void verifyIfEmailAlreadyExists(final String email,final String id) {
@@ -45,7 +48,8 @@ public class UserService {
     public UserResponse update(final String id, final UpdateUserRequest request) {
         User entity = find(id);
         verifyIfEmailAlreadyExists(request.email(),id);
-        return userMapper.fromEntity(userRepository.save(userMapper.update(request,entity)));
+        return userMapper.fromEntity(userRepository.save(userMapper.update(request,entity)
+                .withPassword(request.password()!= null ? encoder.encode(request.password()) : entity.getPassword())));
     }
 
     private User find(final String id) {
