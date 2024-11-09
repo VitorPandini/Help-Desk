@@ -13,6 +13,8 @@ import org.mockito.Mockito;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -56,5 +58,21 @@ class UserServiceTest {
 
         Mockito.verify(userRepository, Mockito.times(1)).findById(Mockito.anyString());
         Mockito.verify(userMapper, Mockito.times(0)).fromEntity(Mockito.any(User.class));
+    }
+
+    @Test
+    void whenCallFIndAllThenReturnListOfUserResponse(){
+        Mockito.when(userRepository.findAll()).thenReturn(List.of(new User(),new User()));
+        Mockito.when(userMapper.fromEntity(Mockito.any(User.class))).thenReturn(Mockito.mock(UserResponse.class));
+
+        final var response = userService.findAll();
+
+        Assertions.assertNotNull(response);
+        Assertions.assertEquals(2, response.size());
+        Assertions.assertEquals(UserResponse.class, response.get(0).getClass());
+
+        Mockito.verify(userRepository, Mockito.times(1)).findAll();
+        Mockito.verify(userMapper, Mockito.times(2)).fromEntity(Mockito.any(User.class));
+
     }
 }
