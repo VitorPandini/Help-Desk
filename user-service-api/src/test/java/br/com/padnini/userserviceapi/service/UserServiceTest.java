@@ -6,6 +6,7 @@ import br.com.padnini.userserviceapi.mapper.UserMapper;
 import br.com.padnini.userserviceapi.repository.UserRepository;
 import exceoptions.ResourceNotFoundException;
 import models.requests.CreateUserRequest;
+import models.requests.UpdateUserRequest;
 import models.responses.UserResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -21,8 +22,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 class UserServiceTest {
@@ -111,6 +111,41 @@ class UserServiceTest {
          verify(userMapper, Mockito.times(0)).fromRequest(request);
          verify(userRepository, Mockito.times(1)).findByEmail(request.email());
          verify(encoder, Mockito.times(0)).encode(request.password());
+    }
+
+    @Test
+    void whenCallUpdateThenWithInvalidIdThenThrowResourceNotFoundException(){
+        final var request = CreatorUtils.generateMock(UpdateUserRequest.class);
+
+        when(userRepository.findById(Mockito.anyString())).thenReturn(Optional.empty());
+
+        try{
+            userService.update("1",request);
+        } catch (Exception e) {
+            assertEquals(ResourceNotFoundException.class, e.getClass());
+            assertEquals("User not found", e.getMessage());
+        }
+        verify(userRepository, Mockito.times(1)).findById(Mockito.anyString());
+        verify(encoder, Mockito.times(0)).encode(request.password());
+        verify(userMapper,times(0)).update(any(),any());
+    }
+
+    @Test
+    void whenCallUpdateWithInvalidEmailThenThrowDataIntegrityViolationException(){
+        final var request = CreatorUtils.generateMock(UpdateUserRequest.class);
+        final  var entity =  CreatorUtils.generateMock(User.class);
+
+        when(userRepository.findById(anyString())).thenReturn(Optional.of(entity));
+        when(userRepository.findByEmail(anyString())).thenReturn(Optional.of(entity));
+
+        try{
+            userService.update("1",request);
+        }catch (Exception e) {
+            assertEquals(DataIntegrityViolationException.class, e.getClass());
+        }
+
+        verify(userRepository, Mockito.times(1)).findById(Mockito.anyString());
+
     }
 
 
