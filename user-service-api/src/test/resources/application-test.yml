@@ -1,0 +1,9 @@
+spring:
+  aplication:
+    name: 'user-service-api'
+  data:
+    mongodb:
+      uri: 'mongodb+srv://help-desk-user:185077@clusterhelpdesk.grxlr.mongodb.net/helpdeskdb?retryWrites=true&w=majority&appName=ClusterHelpDesk'
+      auto-index-creation: true
+server:
+  port: 8081
