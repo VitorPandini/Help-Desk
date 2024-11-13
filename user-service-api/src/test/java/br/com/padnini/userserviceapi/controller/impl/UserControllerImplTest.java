@@ -93,6 +93,21 @@ class UserControllerImplTest {
         userRepository.deleteByEmail(validEmail);
     }
 
+    @Test
+    void testSaveUserWithConflict() throws Exception {
+        final var validEmail= "test_mail@email.com";
+        final var request = CreatorUtils.generateMock(CreateUserRequest.class).withEmail(validEmail);
+        final var entity = CreatorUtils.generateMock(User.class).withEmail(validEmail);
+
+        userRepository.save(entity);
+
+        mockMvc.perform(post("api/users").contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(request))).andExpect(status().isConflict())
+                .andExpect(jsonPath("$.message").value("User already exists"));
+
+        userRepository.deleteById(entity.getId());
+    }
+
 
 
     private String toJson(final Object object) throws JsonProcessingException {
