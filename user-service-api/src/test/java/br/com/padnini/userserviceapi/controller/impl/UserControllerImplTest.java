@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
@@ -53,6 +55,23 @@ class UserControllerImplTest {
                 .andExpect(jsonPath("$.message").value("User not found"))
                 .andExpect(jsonPath("$.status").value(HttpStatus.NOT_FOUND.value()))
                 .andExpect(jsonPath("$.timestamp").isNotEmpty());
+
+
     }
+
+    @Test
+    void testFindAllWithSucess() throws Exception {
+        final var entity = CreatorUtils.generateMock(User.class);
+        final var entity2 = CreatorUtils.generateMock(User.class);
+
+        userRepository.saveAll(List.of(entity,entity2));
+
+        mockMvc.perform(get("api/users"))
+                .andExpect(status().isOk()).andExpect(jsonPath("$").isArray());
+
+        userRepository.deleteAll(List.of(entity2,entity));
+    }
+
+
 
 }
