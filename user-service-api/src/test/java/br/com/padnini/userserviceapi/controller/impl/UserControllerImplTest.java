@@ -2,12 +2,17 @@ package br.com.padnini.userserviceapi.controller.impl;
 
 import br.com.padnini.userserviceapi.creator.CreatorUtils;
 import br.com.padnini.userserviceapi.entity.User;
+import br.com.padnini.userserviceapi.mapper.UserMapperImpl;
 import br.com.padnini.userserviceapi.repository.UserRepository;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import models.requests.CreateUserRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -16,6 +21,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -31,6 +37,8 @@ class UserControllerImplTest {
 
     @Autowired
     private UserRepository userRepository;
+    @Autowired
+    private UserMapperImpl userMapperImpl;
 
     @Test
     void testFindByIdWithSucess() throws Exception {
@@ -72,6 +80,22 @@ class UserControllerImplTest {
         userRepository.deleteAll(List.of(entity2,entity));
     }
 
+    @Test
+    void testSaveWithSucess() throws Exception {
+        final var validEmail= "test_mail@email.com";
+        final var request = CreatorUtils.generateMock(CreateUserRequest.class).withEmail(validEmail);
 
 
+
+        mockMvc.perform(post("api/users").contentType(MediaType.APPLICATION_JSON)
+                .content(toJson(request))).andExpect(status().isCreated());
+
+        userRepository.deleteByEmail(validEmail);
+    }
+
+
+
+    private String toJson(final Object object) throws JsonProcessingException {
+        return new ObjectMapper().writeValueAsString(object);
+    }
 }
